@@ -203,7 +203,7 @@ void scratchFromGroup(Matrix<Field> &matrix, const Group group, uint32_t value)
 {
     for (auto coordinate : group) {
         Field &field = matrix(coordinate);
-        field.scratch(field.getValue());
+        field.scratch(value);
     }
 }
 
@@ -288,7 +288,7 @@ int main()
     Matrix<Field> sudoku_matrix(9,9);
 
     //set init
-/*    sudoku_matrix.set({0, 1}, Field(6));
+    sudoku_matrix.set({0, 1}, Field(6));
     sudoku_matrix.set({0, 2}, Field(7));
     sudoku_matrix.set({0, 3}, Field(2));
     sudoku_matrix.set({0, 8}, Field(5));
@@ -323,10 +323,10 @@ int main()
     sudoku_matrix.set({8, 5}, Field(3));
     sudoku_matrix.set({8, 6}, Field(8));
     sudoku_matrix.set({8, 7}, Field(2));
-*/
+
     show(sudoku_matrix);
 
-
+/*
     sudoku_matrix.set({0, 5}, Field(9));
     sudoku_matrix.set({0, 6}, Field(6));
     sudoku_matrix.set({0, 7}, Field(3));
@@ -362,7 +362,7 @@ int main()
 
 
     show(sudoku_matrix);
-
+*/
     uint32_t dupa = 9000;
 
     do {
