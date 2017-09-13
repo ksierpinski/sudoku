@@ -18,9 +18,16 @@ class Matrix
     uint32_t m_ySize;
 
 public:
-    Matrix(uint32_t x, uint32_t y) : m_xSize(x), m_ySize(y)
+    Matrix(uint32_t xSize, uint32_t ySize) : m_xSize(xSize), m_ySize(ySize)
     {
         m_inner.resize(m_xSize * m_ySize);
+
+        for (uint32_t x = 0; x < m_xSize; ++x) {
+            for (uint32_t y = 0; y < m_ySize; ++y) {
+                m_inner[m_xSize * y + x].x = x;
+                m_inner[m_xSize * y + x].y = y;
+            }
+        }
     }
 
     T& operator()(const Coordinate &c)
@@ -39,6 +46,17 @@ public:
         }
 
         return static_cast<const T&>(m_inner[m_xSize * c.y + c.x]);
+    }
+
+
+    void  test_show(const Coordinate &coord) const
+    {
+        if (coord.x >= m_xSize || coord.y >= m_ySize) {
+            throw 0;
+        }
+
+        std::cout << "Inner coord: " <<  m_inner[m_xSize * coord.y + coord.x].x << " " <<
+                                         m_inner[m_xSize * coord.y + coord.x].y << std::endl;
     }
 };
 
@@ -82,11 +100,12 @@ Group group8 = {{ {6, 6}, {6, 7}, {6, 8},
 
 std::array<Group, 9> groups = { group0, group1, group2, group3, group4, group5, group6, group7, group8 };
 
-class Field
+class Field : public Coordinate
 {
     std::vector<uint32_t> m_scratchList = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 public:
+
     //FIXME: what if val > 9?
     Field(uint32_t value = 0)
     {
@@ -326,6 +345,8 @@ int main()
 
     show(sudoku);
 
+    sudoku.test_show({3, 4});
+
 /*
 // Sudoku init - level expert
     sudoku({0, 5}) = 9;
@@ -385,6 +406,8 @@ int main()
         }
     } while (isSolved(sudoku) == false);
 
+
+    sudoku.test_show({3, 4});
 
     std::cout << "\nSolution:\n";
     show(sudoku);
