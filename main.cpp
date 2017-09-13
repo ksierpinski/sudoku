@@ -98,7 +98,7 @@ public:
         return m_scratchList[0];
     }
 
-    uint32_t getScratchSize() const
+    uint32_t getScratchListSize() const
     {
         return m_scratchList.size();
     }
@@ -154,89 +154,89 @@ std::ostream &operator<<(std::ostream &os, const Field &m)
     return os << m.getValue();
 }
 
-inline void scratchFromRow(Matrix<Field> &matrix, const uint32_t row, uint32_t value)
+inline void scratchFromRow(Matrix<Field> &sudoku, const uint32_t ROW, uint32_t value)
 {
-    for (uint32_t i = 0; i < 9; ++i) {
-        Field &field = matrix({ i, row });
-        field.scratch(value);
+    for (uint32_t col = 0; col < 9; ++col) {
+        Field &f = sudoku({ col, ROW });
+        f.scratch(value);
     }
 }
 
-void rowSolver(Matrix<Field> &matrix, const uint32_t row)
+void syncRows(Matrix<Field> &sudoku, const uint32_t ROW)
 {
     for (uint32_t i = 0; i < 9; ++i) {
-        Field &field = matrix({ i, row });
-        if (field.isSet()) {
-            scratchFromRow(matrix, row, field.getValue());
+        Field &f = sudoku({ i, ROW });
+        if (f.isSet()) {
+            scratchFromRow(sudoku, ROW, f.getValue());
         }
     }
 }
 
-inline void scratchFromColumn(Matrix<Field> &matrix, const uint32_t col, uint32_t value)
+inline void scratchFromColumn(Matrix<Field> &sudoku, const uint32_t COL, uint32_t value)
 {
-    for (uint32_t i = 0; i < 9; ++i) {
-        Field &field = matrix({ col, i });
-        field.scratch(value);
+    for (uint32_t row = 0; row < 9; ++row) {
+        Field &f = sudoku({ COL, row });
+        f.scratch(value);
     }
 }
 
-void columnSolver(Matrix<Field> &matrix, const uint32_t col)
+void syncColumns(Matrix<Field> &sudoku, const uint32_t COL)
 {
-    for (uint32_t i = 0; i < 9; ++i) {
-        Field &field = matrix({ col, i });
-        if (field.isSet()) {
-            scratchFromColumn(matrix, col, field.getValue());
+    for (uint32_t row = 0; row < 9; ++row) {
+        Field &f = sudoku({ COL, row });
+        if (f.isSet()) {
+            scratchFromColumn(sudoku, COL, f.getValue());
         }
     }
 }
 
-inline void scratchFromGroup(Matrix<Field> &matrix, const Group &group, uint32_t value)
+inline void scratchFromGroup(Matrix<Field> &sudoku, const Group &GROUP, uint32_t value)
 {
-    for (auto coordinate : group) {
-        Field &field = matrix(coordinate);
-        field.scratch(value);
+    for (auto coord : GROUP) {
+        Field &f = sudoku(coord);
+        f.scratch(value);
     }
 }
 
-void simpleGroupSolver(Matrix<Field> &matrix, const Group &group)
+void syncGroups(Matrix<Field> &sudoku, const Group &GROUP)
 {
-    for (auto i : group) {
-        Field &field = matrix(i);
-        if (field.isSet()) {
-            scratchFromGroup(matrix, group, field.getValue());
+    for (auto coord : GROUP) {
+        Field &f = sudoku(coord);
+        if (f.isSet()) {
+            scratchFromGroup(sudoku, GROUP, f.getValue());
         }
     }
 }
 
-void groupSolver(Matrix<Field> &matrix, const Group &group)
+void groupSolver(Matrix<Field> &sudoku, const Group &GROUP)
 {
     for (uint32_t val = 1; val <=9; ++val) {
         uint32_t count = 0;
 
-        for (auto coordinate : group) {
-            Field &field = matrix(coordinate);
-            if (field.isPossible(val)) {
+        for (auto coord : GROUP) {
+            Field &f = sudoku(coord);
+            if (f.isPossible(val)) {
                 ++count;
             }
         }
 
         if (count == 1) {
-            for (auto coordinate : group) {
-                Field &field = matrix(coordinate);
-                if (field.isPossible(val)) {
-                    field.set(val);
+            for (auto coord : GROUP) {
+                Field &f = sudoku(coord);
+                if (f.isPossible(val)) {
+                    f.set(val);
                 }
             }
         }
     }
 }
 
-bool isSolved(Matrix<Field> &matrix)
+bool isSolved(Matrix<Field> &sudoku)
 {
-    for (uint32_t i = 0; i < 9; ++i) {
-        for (uint32_t j = 0; j < 9; ++j) {
-            auto field = matrix({i, j});
-            if (field.isSet() == false) {
+    for (uint32_t col = 0; col < 9; ++col) {
+        for (uint32_t row = 0; row < 9; ++row) {
+            Field &f = sudoku({col, row});
+            if (f.isSet() == false) {
                 return false;
             }
         }
@@ -245,11 +245,11 @@ bool isSolved(Matrix<Field> &matrix)
     return true;
 }
 
-void show(Matrix<Field> &matrix)
+void show(Matrix<Field> &sudoku)
 {
-    for (uint32_t i = 8; i != -1; --i) {
-        for (uint32_t j = 0; j < 9; ++j) {
-            auto val = matrix({i, j}).getValue();
+    for (uint32_t col = 8; col != -1; --col) {
+        for (uint32_t row = 0; row < 9; ++row) {
+            auto val = sudoku({col, row}).getValue();
 
             if (val != 0) {
                 std::cout << val;
@@ -263,11 +263,11 @@ void show(Matrix<Field> &matrix)
     }
 }
 
-void showSize(Matrix<Field> &matrix)
+void showSize(Matrix<Field> &sudoku)
 {
-    for (uint32_t i = 8; i != -1; --i) {
-        for (uint32_t j = 0; j < 9; ++j) {
-            std::cout << matrix({i, j}).getScratchSize();
+    for (uint32_t col = 8; col != -1; --col) {
+        for (uint32_t row = 0; row < 9; ++row) {
+            std::cout << sudoku({col, row}).getScratchListSize();
         }
 
         std::cout << std::endl;
@@ -355,29 +355,29 @@ int main()
 
     show(sudoku);
 */
+
     do {
         //scratch in all row
-        for (uint32_t i = 0; i < 9; ++i) {
-            rowSolver(sudoku, i);
+        for (uint32_t row = 0; row < 9; ++row) {
+            syncRows(sudoku, row);
         }
         //scratch in all column
-        for (uint32_t i = 0; i < 9; ++i) {
-            columnSolver(sudoku, i);
+        for (uint32_t col = 0; col < 9; ++col) {
+            syncColumns(sudoku, col);
         }
 
         //scratch in all group
-        for (auto g : groups) {
-            simpleGroupSolver(sudoku, g);
+        for (auto gr : groups) {
+            syncGroups(sudoku, gr);
         }
 
-        for (auto g : groups) {
-            groupSolver(sudoku, g);
+        for (auto gr : groups) {
+            groupSolver(sudoku, gr);
         }
-
     } while (isSolved(sudoku) == false);
 
 
-    std::cout << "Solution:\n\n";
+    std::cout << "\nSolution:\n";
     show(sudoku);
 
     return 0;
