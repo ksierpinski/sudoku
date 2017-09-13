@@ -31,6 +31,15 @@ public:
 
         return m_inner[m_xSize * c.y + c.x];
     }
+
+    const T& operator()(const Coordinate &c) const
+    {
+        if (c.x >= m_xSize || c.y >= m_ySize) {
+            throw 0;
+        }
+
+        return (const T&) m_inner[m_xSize * c.y + c.x];
+    }
 };
 
 using Group = std::array<Coordinate, 9>;
@@ -231,11 +240,11 @@ void groupSolver(Matrix<Field> &sudoku, const Group &GROUP)
     }
 }
 
-bool isSolved(Matrix<Field> &sudoku)
+bool isSolved(const Matrix<Field> &sudoku)
 {
     for (uint32_t col = 0; col < 9; ++col) {
         for (uint32_t row = 0; row < 9; ++row) {
-            Field &f = sudoku({col, row});
+            const Field &f = sudoku({col, row});
             if (f.isSet() == false) {
                 return false;
             }
@@ -245,7 +254,7 @@ bool isSolved(Matrix<Field> &sudoku)
     return true;
 }
 
-void show(Matrix<Field> &sudoku)
+void show(const Matrix<Field> &sudoku)
 {
     for (uint32_t col = 8; col != -1; --col) {
         for (uint32_t row = 0; row < 9; ++row) {
@@ -263,7 +272,7 @@ void show(Matrix<Field> &sudoku)
     }
 }
 
-void showSize(Matrix<Field> &sudoku)
+void showSize(const Matrix<Field> &sudoku)
 {
     for (uint32_t col = 8; col != -1; --col) {
         for (uint32_t row = 0; row < 9; ++row) {
