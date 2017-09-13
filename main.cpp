@@ -38,7 +38,7 @@ public:
             throw 0;
         }
 
-        return (const T&) m_inner[m_xSize * c.y + c.x];
+        return static_cast<const T&>(m_inner[m_xSize * c.y + c.x]);
     }
 };
 
@@ -181,7 +181,7 @@ void syncRows(Matrix<Field> &sudoku, const uint32_t ROW)
     }
 }
 
-inline void scratchFromColumn(Matrix<Field> &sudoku, const uint32_t COL, uint32_t value)
+inline void columnSolver(Matrix<Field> &sudoku, const uint32_t COL, uint32_t value)
 {
     for (uint32_t row = 0; row < 9; ++row) {
         Field &f = sudoku({ COL, row });
@@ -194,7 +194,7 @@ void syncColumns(Matrix<Field> &sudoku, const uint32_t COL)
     for (uint32_t row = 0; row < 9; ++row) {
         Field &f = sudoku({ COL, row });
         if (f.isSet()) {
-            scratchFromColumn(sudoku, COL, f.getValue());
+            columnSolver(sudoku, COL, f.getValue());
         }
     }
 }
