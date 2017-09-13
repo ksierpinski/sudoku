@@ -145,7 +145,7 @@ public:
         m_scratchList.erase(m_scratchList.begin(), position);
         m_scratchList.erase(m_scratchList.begin() + 1, m_scratchList.end());
 
-        std::cout << "Val is " << m_scratchList[0]<< ", size is: " << m_scratchList.size() << std::endl;
+        std::cout << "Set value: " << m_scratchList[0] << std::endl;
     }
 };
 
@@ -154,7 +154,7 @@ std::ostream &operator<<(std::ostream &os, Field const &m)
     return os << m.getValue();
 }
 
-void scratchFromRow(Matrix<Field> &matrix, const uint32_t row, uint32_t value)
+inline void scratchFromRow(Matrix<Field> &matrix, const uint32_t row, uint32_t value)
 {
     for (uint32_t i = 0; i < 9; ++i) {
         Field &field = matrix({ i, row });
@@ -172,7 +172,7 @@ void rowSolver(Matrix<Field> &matrix, const uint32_t row)
     }
 }
 
-void scratchFromColumn(Matrix<Field> &matrix, const uint32_t col, uint32_t value)
+inline void scratchFromColumn(Matrix<Field> &matrix, const uint32_t col, uint32_t value)
 {
     for (uint32_t i = 0; i < 9; ++i) {
         Field &field = matrix({ col, i });
@@ -190,7 +190,7 @@ void columnSolver(Matrix<Field> &matrix, const uint32_t col)
     }
 }
 
-void scratchFromGroup(Matrix<Field> &matrix, const Group group, uint32_t value)
+inline void scratchFromGroup(Matrix<Field> &matrix, const Group group, uint32_t value)
 {
     for (auto coordinate : group) {
         Field &field = matrix(coordinate);
@@ -231,7 +231,7 @@ void check_group(Matrix<Field> &matrix, Group group)
     }
 }
 
-bool is_solved(Matrix<Field> &matrix)
+bool isSolved(Matrix<Field> &matrix)
 {
     for (uint32_t i = 0; i < 9; ++i) {
         for (uint32_t j = 0; j < 9; ++j) {
@@ -263,7 +263,7 @@ void show(Matrix<Field> &matrix)
     }
 }
 
-void show_size(Matrix<Field> &matrix)
+void showSize(Matrix<Field> &matrix)
 {
     for (uint32_t i = 8; i != -1; --i) {
         for (uint32_t j = 0; j < 9; ++j) {
@@ -374,7 +374,7 @@ int main()
             check_group(sudoku, g);
         }
 
-    } while(is_solved(sudoku) == false);
+    } while (isSolved(sudoku) == false);
 
 
     std::cout << "Solution:\n\n";
