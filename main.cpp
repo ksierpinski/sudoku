@@ -149,7 +149,7 @@ public:
     }
 };
 
-std::ostream &operator<<(std::ostream &os, Field const &m)
+std::ostream &operator<<(std::ostream &os, const Field &m)
 {
     return os << m.getValue();
 }
@@ -190,7 +190,7 @@ void columnSolver(Matrix<Field> &matrix, const uint32_t col)
     }
 }
 
-inline void scratchFromGroup(Matrix<Field> &matrix, const Group group, uint32_t value)
+inline void scratchFromGroup(Matrix<Field> &matrix, const Group &group, uint32_t value)
 {
     for (auto coordinate : group) {
         Field &field = matrix(coordinate);
@@ -198,7 +198,7 @@ inline void scratchFromGroup(Matrix<Field> &matrix, const Group group, uint32_t 
     }
 }
 
-void groupSolver(Matrix<Field> &matrix, const Group group)
+void simpleGroupSolver(Matrix<Field> &matrix, const Group &group)
 {
     for (auto i : group) {
         Field &field = matrix(i);
@@ -208,7 +208,7 @@ void groupSolver(Matrix<Field> &matrix, const Group group)
     }
 }
 
-void check_group(Matrix<Field> &matrix, Group group)
+void groupSolver(Matrix<Field> &matrix, const Group &group)
 {
     for (uint32_t val = 1; val <=9; ++val) {
         uint32_t count = 0;
@@ -367,11 +367,11 @@ int main()
 
         //scratch in all group
         for (auto g : groups) {
-            groupSolver(sudoku, g);
+            simpleGroupSolver(sudoku, g);
         }
 
         for (auto g : groups) {
-            check_group(sudoku, g);
+            groupSolver(sudoku, g);
         }
 
     } while (isSolved(sudoku) == false);
