@@ -31,15 +31,6 @@ public:
 
         return m_inner[m_xSize * c.y + c.x];
     }
-
-    void set(const Coordinate &c, const T &value)
-    {
-        if (c.x >= m_xSize || c.y >= m_ySize) {
-            throw 0;
-        }
-
-        m_inner[m_xSize * c.y + c.x] = value;
-    }
 };
 
 using Group = std::array<Coordinate, 9>;
@@ -285,111 +276,109 @@ void show_size(Matrix<Field> &matrix)
 
 int main()
 {
-    Matrix<Field> sudoku_matrix(9,9);
+    Matrix<Field> sudoku(9,9);
 
-    //set init
-    sudoku_matrix.set({0, 1}, Field(6));
-    sudoku_matrix.set({0, 2}, Field(7));
-    sudoku_matrix.set({0, 3}, Field(2));
-    sudoku_matrix.set({0, 8}, Field(5));
+    // Sudoku init - level begginer
+    sudoku({0, 1}) = 6;
+    sudoku({0, 2}) = 7;
+    sudoku({0, 3}) = 2;
+    sudoku({0, 8}) = 5;
 
-    sudoku_matrix.set({1, 0}, Field(3));
-    sudoku_matrix.set({1, 2}, Field(2));
-    sudoku_matrix.set({1, 3}, Field(8));
-    sudoku_matrix.set({1, 6}, Field(7));
+    sudoku({1, 0}) = 3;
+    sudoku({1, 2}) = 2;
+    sudoku({1, 3}) = 8;
+    sudoku({1, 6}) = 7;
 
-    sudoku_matrix.set({2, 1}, Field(9));
-    sudoku_matrix.set({2, 4}, Field(1));
+    sudoku({2, 1}) = 9;
+    sudoku({2, 4}) = 1;
 
-    sudoku_matrix.set({3, 3}, Field(1));
-    sudoku_matrix.set({3, 5}, Field(7));
-    sudoku_matrix.set({3, 6}, Field(6));
-    sudoku_matrix.set({3, 8}, Field(8));
+    sudoku({3, 3}) = 1;
+    sudoku({3, 5}) = 7;
+    sudoku({3, 6}) = 6;
+    sudoku({3, 8}) = 8;
 
-    sudoku_matrix.set({5, 0}, Field(6));
-    sudoku_matrix.set({5, 2}, Field(1));
-    sudoku_matrix.set({5, 3}, Field(3));
-    sudoku_matrix.set({5, 5}, Field(9));
+    sudoku({5, 0}) = 6;
+    sudoku({5, 2}) = 1;
+    sudoku({5, 3}) = 3;
+    sudoku({5, 5}) = 9;
 
-    sudoku_matrix.set({6, 4}, Field(2));
-    sudoku_matrix.set({6, 7}, Field(7));
+    sudoku({6, 4}) = 2;
+    sudoku({6, 7}) = 7;
 
-    sudoku_matrix.set({7, 2}, Field(5));
-    sudoku_matrix.set({7, 5}, Field(8));
-    sudoku_matrix.set({7, 6}, Field(1));
-    sudoku_matrix.set({7, 8}, Field(9));
+    sudoku({7, 2}) = 5;
+    sudoku({7, 5}) = 8;
+    sudoku({7, 6}) = 1;
+    sudoku({7, 8}) = 9;
 
-    sudoku_matrix.set({8, 0}, Field(4));
-    sudoku_matrix.set({8, 5}, Field(3));
-    sudoku_matrix.set({8, 6}, Field(8));
-    sudoku_matrix.set({8, 7}, Field(2));
+    sudoku({8, 0}) = 4;
+    sudoku({8, 5}) = 3;
+    sudoku({8, 6}) = 8;
+    sudoku({8, 7}) = 2;
 
-    show(sudoku_matrix);
+    show(sudoku);
 
 /*
-    sudoku_matrix.set({0, 5}, Field(9));
-    sudoku_matrix.set({0, 6}, Field(6));
-    sudoku_matrix.set({0, 7}, Field(3));
-    sudoku_matrix.set({0, 8}, Field(7));
+// Sudoku init - level expert
+    sudoku({0, 5}) = 9;
+    sudoku({0, 6}) = 6;
+    sudoku({0, 7}) = 3;
+    sudoku({0, 8}) = 7;
 
-    sudoku_matrix.set({1, 5}, Field(8));
+    sudoku({1, 5}) = 8;
 
-    sudoku_matrix.set({2, 1}, Field(9));
-    sudoku_matrix.set({2, 2}, Field(5));
-    sudoku_matrix.set({2, 6}, Field(1));
+    sudoku({2, 1}) = 9;
+    sudoku({2, 2}) = 5;
+    sudoku({2, 6}) = 1;
 
-    sudoku_matrix.set({3, 0}, Field(8));
-    sudoku_matrix.set({3, 3}, Field(4));
-    sudoku_matrix.set({3, 6}, Field(9));
+    sudoku({3, 0}) = 8;
+    sudoku({3, 3}) = 4;
+    sudoku({3, 6}) = 9;
 
-    sudoku_matrix.set({4, 0}, Field(7));
-    sudoku_matrix.set({4, 7}, Field(4));
+    sudoku({4, 0}) = 7;
+    sudoku({4, 7}) = 4;
 
-    sudoku_matrix.set({5, 0}, Field(6));
-    sudoku_matrix.set({5, 8}, Field(3));
+    sudoku({5, 0}) = 6;
+    sudoku({5, 8}) = 3;
 
-    sudoku_matrix.set({6, 0}, Field(5));
-    sudoku_matrix.set({6, 5}, Field(7));
-    sudoku_matrix.set({6, 6}, Field(8));
-    sudoku_matrix.set({6, 7}, Field(2));
-    sudoku_matrix.set({6, 8}, Field(9));
+    sudoku({6, 0}) = 5;
+    sudoku({6, 5}) = 7;
+    sudoku({6, 6}) = 8;
+    sudoku({6, 7}) = 2;
+    sudoku({6, 8}) = 9;
 
-    sudoku_matrix.set({7, 0}, Field(4));
-    sudoku_matrix.set({7, 3}, Field(1));
+    sudoku({7, 0}) = 4;
+    sudoku({7, 3}) = 1;
 
-    sudoku_matrix.set({8, 1}, Field(3));
-    sudoku_matrix.set({8, 2}, Field(2));
+    sudoku({8, 1}) = 3;
+    sudoku({8, 2}) = 2;
 
 
-    show(sudoku_matrix);
+    show(sudoku);
 */
-    uint32_t dupa = 9000;
-
     do {
         //scratch in all row
         for (uint32_t i = 0; i < 9; ++i) {
-            rowSolver(sudoku_matrix, i);
+            rowSolver(sudoku, i);
         }
         //scratch in all column
         for (uint32_t i = 0; i < 9; ++i) {
-            columnSolver(sudoku_matrix, i);
+            columnSolver(sudoku, i);
         }
 
         //scratch in all group
         for (auto g : groups) {
-            groupSolver(sudoku_matrix, g);
+            groupSolver(sudoku, g);
         }
 
         for (auto g : groups) {
-            check_group(sudoku_matrix, g);
+            check_group(sudoku, g);
         }
 
-    } while(dupa--);
-//    } while(is_solved(sudoku_matrix) == false);
+    } while(is_solved(sudoku) == false);
 
 
     std::cout << "Solution:\n\n";
-    show(sudoku_matrix);
+    show(sudoku);
 
     return 0;
 }
