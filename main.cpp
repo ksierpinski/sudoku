@@ -3,6 +3,7 @@
 #include <array>
 #include <iostream>
 #include <algorithm>
+#include <assert.h>
 
 struct Coordinate
 {
@@ -26,6 +27,8 @@ public:
             for (uint32_t y = 0; y < m_ySize; ++y) {
                 m_inner[m_xSize * y + x].x = x;
                 m_inner[m_xSize * y + x].y = y;
+
+                m_inner[m_xSize * y + x].matrix = this;
             }
         }
     }
@@ -49,7 +52,7 @@ public:
     }
 
 
-    void  test_show(const Coordinate &coord) const
+    void test_show(const Coordinate &coord) const
     {
         if (coord.x >= m_xSize || coord.y >= m_ySize) {
             throw 0;
@@ -59,6 +62,27 @@ public:
                                          m_inner[m_xSize * coord.y + coord.x].y << std::endl;
     }
 };
+
+
+/*
+
+ROW n
+    |
+   --------------------
+   8|     |     |     |
+   7|  6  |  7  |  8  |
+   6|     |     |     |
+   --------------------
+   5|     |     |     |
+   4|  3  |  4  |  5  |
+   3|     |     |     |
+   --------------------
+   2|     |     |     |
+   1|  0  |  1  |  2  |
+   0|     |     |     |
+   ----------------------->
+    |0 1 2|3 4 5|6 7 8|    COL
+*/
 
 using Group = std::array<Coordinate, 9>;
 
@@ -100,14 +124,33 @@ Group group8 = {{ {6, 6}, {6, 7}, {6, 8},
 
 std::array<Group, 9> groups = { group0, group1, group2, group3, group4, group5, group6, group7, group8 };
 
+Group& getGroup(uint32_t col, uint32_t row)
+{
+    uint32_t index = (col / 3) + 3 * (row / 3);
+
+    return groups[index];
+}
+
+class Field;
+
+inline void scratchFromRow(Matrix<Field> &sudoku, const uint32_t ROW, uint32_t value);
+inline void scratchFromColumn(Matrix<Field> &sudoku, const uint32_t COL, uint32_t value);
+inline void scratchFromGroup(Matrix<Field> &sudoku, const Group &GROUP, uint32_t value);
+
 class Field : public Coordinate
 {
     std::vector<uint32_t> m_scratchList = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 public:
 
-    //FIXME: what if val > 9?
+    Matrix<Field> *matrix = nullptr;
+
     Field(uint32_t value = 0)
+    {
+        set(value);
+    }
+
+    Field &operator=(uint32_t value)
     {
         set(value);
     }
@@ -153,6 +196,15 @@ public:
 
             if (isSet()) {
                 std::cout << "New value: " << getValue() << std::endl;
+
+                if (matrix) {
+                    scratchFromColumn(*matrix, x, getValue());
+                    scratchFromRow(*matrix, y, getValue());
+                    scratchFromGroup(*matrix, getGroup(x, y), getValue());
+                }
+                else {
+                    assert(0);
+                }
             }
         }
 
@@ -174,6 +226,15 @@ public:
         m_scratchList.erase(m_scratchList.begin() + 1, m_scratchList.end());
 
         std::cout << "Set value: " << m_scratchList[0] << std::endl;
+
+        if (matrix) {
+            scratchFromColumn(*matrix, x, getValue());
+            scratchFromRow(*matrix, y, getValue());
+            scratchFromGroup(*matrix, getGroup(x, y), getValue());
+        }
+        else {
+            assert(0);
+        }
     }
 };
 
@@ -190,31 +251,11 @@ inline void scratchFromRow(Matrix<Field> &sudoku, const uint32_t ROW, uint32_t v
     }
 }
 
-void syncRows(Matrix<Field> &sudoku, const uint32_t ROW)
-{
-    for (uint32_t i = 0; i < 9; ++i) {
-        Field &f = sudoku({ i, ROW });
-        if (f.isSet()) {
-            scratchFromRow(sudoku, ROW, f.getValue());
-        }
-    }
-}
-
-inline void columnSolver(Matrix<Field> &sudoku, const uint32_t COL, uint32_t value)
+inline void scratchFromColumn(Matrix<Field> &sudoku, const uint32_t COL, uint32_t value)
 {
     for (uint32_t row = 0; row < 9; ++row) {
         Field &f = sudoku({ COL, row });
         f.scratch(value);
-    }
-}
-
-void syncColumns(Matrix<Field> &sudoku, const uint32_t COL)
-{
-    for (uint32_t row = 0; row < 9; ++row) {
-        Field &f = sudoku({ COL, row });
-        if (f.isSet()) {
-            columnSolver(sudoku, COL, f.getValue());
-        }
     }
 }
 
@@ -226,19 +267,9 @@ inline void scratchFromGroup(Matrix<Field> &sudoku, const Group &GROUP, uint32_t
     }
 }
 
-void syncGroups(Matrix<Field> &sudoku, const Group &GROUP)
-{
-    for (auto coord : GROUP) {
-        Field &f = sudoku(coord);
-        if (f.isSet()) {
-            scratchFromGroup(sudoku, GROUP, f.getValue());
-        }
-    }
-}
-
 void groupSolver(Matrix<Field> &sudoku, const Group &GROUP)
 {
-    for (uint32_t val = 1; val <=9; ++val) {
+    for (uint32_t val = 1; val <= 9; ++val) {
         uint32_t count = 0;
 
         for (auto coord : GROUP) {
@@ -382,25 +413,9 @@ int main()
     sudoku({8, 1}) = 3;
     sudoku({8, 2}) = 2;
 
-
     show(sudoku);
 */
-
     do {
-        //scratch in all row
-        for (uint32_t row = 0; row < 9; ++row) {
-            syncRows(sudoku, row);
-        }
-        //scratch in all column
-        for (uint32_t col = 0; col < 9; ++col) {
-            syncColumns(sudoku, col);
-        }
-
-        //scratch in all group
-        for (auto gr : groups) {
-            syncGroups(sudoku, gr);
-        }
-
         for (auto gr : groups) {
             groupSolver(sudoku, gr);
         }
