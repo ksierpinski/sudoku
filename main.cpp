@@ -50,17 +50,6 @@ public:
 
         return static_cast<const T&>(m_inner[m_xSize * c.y + c.x]);
     }
-
-
-    void test_show(const Coordinate &coord) const
-    {
-        if (coord.x >= m_xSize || coord.y >= m_ySize) {
-            throw 0;
-        }
-
-        std::cout << "Inner coord: " <<  m_inner[m_xSize * coord.y + coord.x].x << " " <<
-                                         m_inner[m_xSize * coord.y + coord.x].y << std::endl;
-    }
 };
 
 
@@ -376,8 +365,6 @@ int main()
 
     show(sudoku);
 
-    sudoku.test_show({3, 4});
-
 /*
 // Sudoku init - level expert
     sudoku({0, 5}) = 9;
@@ -420,9 +407,6 @@ int main()
             groupSolver(sudoku, gr);
         }
     } while (isSolved(sudoku) == false);
-
-
-    sudoku.test_show({3, 4});
 
     std::cout << "\nSolution:\n";
     show(sudoku);
