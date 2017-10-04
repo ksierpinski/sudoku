@@ -52,7 +52,6 @@ public:
     }
 };
 
-
 /*
 
 ROW n
@@ -184,8 +183,6 @@ public:
             m_scratchList.erase(position);
 
             if (isSet()) {
-                std::cout << "New value: " << getValue() << std::endl;
-
                 if (matrix) {
                     scratchFromColumn(*matrix, x, getValue());
                     scratchFromRow(*matrix, y, getValue());
@@ -213,8 +210,6 @@ public:
 
         m_scratchList.erase(m_scratchList.begin(), position);
         m_scratchList.erase(m_scratchList.begin() + 1, m_scratchList.end());
-
-        std::cout << "Set value: " << m_scratchList[0] << std::endl;
 
         if (matrix) {
             scratchFromColumn(*matrix, x, getValue());
@@ -256,6 +251,52 @@ inline void scratchFromGroup(Matrix<Field> &sudoku, const Group &GROUP, uint32_t
     }
 }
 
+void columnSolver(Matrix<Field> &sudoku, const uint32_t COL)
+{
+    for (uint32_t val = 1; val <= 9; ++val) {
+        uint32_t count = 0;
+
+        for (uint32_t row = 0; row < 9; ++row) {
+            Field &f = sudoku({ COL, row });
+            if (f.isPossible(val)) {
+                ++count;
+            }
+        }
+
+        if (count == 1) {
+            for (uint32_t row = 0; row < 9; ++row) {
+                Field &f = sudoku({ COL, row });
+                if (f.isPossible(val)) {
+                    f.set(val);
+                }
+            }
+        }
+    }
+}
+
+void rowSolver(Matrix<Field> &sudoku, const uint32_t ROW)
+{
+    for (uint32_t val = 1; val <= 9; ++val) {
+        uint32_t count = 0;
+
+        for (uint32_t col = 0; col < 9; ++col) {
+            Field &f = sudoku({ col, ROW });
+            if (f.isPossible(val)) {
+                ++count;
+            }
+        }
+
+        if (count == 1) {
+            for (uint32_t col = 0; col < 9; ++col) {
+                Field &f = sudoku({ col, ROW });
+                if (f.isPossible(val)) {
+                    f.set(val);
+                }
+            }
+        }
+    }
+}
+
 void groupSolver(Matrix<Field> &sudoku, const Group &GROUP)
 {
     for (uint32_t val = 1; val <= 9; ++val) {
@@ -293,6 +334,21 @@ bool isSolved(const Matrix<Field> &sudoku)
     return true;
 }
 
+uint32_t countSolved(const Matrix<Field> &sudoku)
+{
+    uint32_t count = 0;
+    for (uint32_t col = 0; col < 9; ++col) {
+        for (uint32_t row = 0; row < 9; ++row) {
+            const Field &f = sudoku({col, row});
+            if (f.isSet()) {
+                ++count;
+            }
+        }
+    }
+
+    return count;
+}
+
 void show(const Matrix<Field> &sudoku)
 {
     for (uint32_t col = 8; col != -1; --col) {
@@ -325,7 +381,7 @@ void showSize(const Matrix<Field> &sudoku)
 int main()
 {
     Matrix<Field> sudoku(9,9);
-
+/*
     // Sudoku init - level begginer
     sudoku({0, 1}) = 6;
     sudoku({0, 2}) = 7;
@@ -365,6 +421,45 @@ int main()
 
     show(sudoku);
 
+*/
+
+
+// Sudoku init - level very hard
+    sudoku({0, 3}) = 1;
+    sudoku({0, 5}) = 7;
+    sudoku({0, 7}) = 6;
+    sudoku({0, 8}) = 5;
+
+    sudoku({1, 0}) = 6;
+    sudoku({1, 1}) = 4;
+    sudoku({1, 7}) = 2;
+
+    sudoku({2, 3}) = 2;
+    sudoku({2, 6}) = 1;
+    sudoku({2, 8}) = 9;
+
+    sudoku({3, 2}) = 9;
+    sudoku({3, 7}) = 1;
+    sudoku({3, 8}) = 7;
+
+    sudoku({5, 0}) = 2;
+    sudoku({5, 1}) = 7;
+    sudoku({5, 6}) = 9;
+
+    sudoku({6, 0}) = 4;
+    sudoku({6, 2}) = 7;
+    sudoku({6, 5}) = 5;
+
+    sudoku({7, 1}) = 9;
+    sudoku({7, 7}) = 5;
+    sudoku({7, 8}) = 6;
+
+    sudoku({8, 0}) = 3;
+    sudoku({8, 1}) = 1;
+    sudoku({8, 3}) = 6;
+    sudoku({8, 5}) = 4;
+
+    show(sudoku);
 /*
 // Sudoku init - level expert
     sudoku({0, 5}) = 9;
@@ -403,6 +498,14 @@ int main()
     show(sudoku);
 */
     do {
+        for (uint32_t col = 0; col < 9; ++col) {
+            columnSolver(sudoku, col);
+        }
+
+        for (uint32_t row = 0; row < 9; ++row) {
+            rowSolver(sudoku, row);
+        }
+
         for (auto gr : groups) {
             groupSolver(sudoku, gr);
         }
@@ -410,6 +513,8 @@ int main()
 
     std::cout << "\nSolution:\n";
     show(sudoku);
+
+    std::cout << "Solved field: " << countSolved(sudoku) << std::endl;
 
     return 0;
 }
